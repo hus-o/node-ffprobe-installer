@@ -9,7 +9,11 @@ const arch = process.env.npm_config_arch || os.arch();
 
 const target = platform + '-' + arch;
 
-const packageName = '@ffprobe-installer/' + target;
+let packageName = '@ffprobe-installer/' + platform;
+
+if (platform === 'darwin-arm64') {
+	packageName = 'ffprobe-darwin-arm64';
+}
 
 if (!require('./package.json').optionalDependencies[packageName]) {
 	throw new Error('Unsupported platform/architecture: ' + target);
@@ -17,8 +21,10 @@ if (!require('./package.json').optionalDependencies[packageName]) {
 
 const binary = platform === 'win32' ? 'ffprobe.exe' : 'ffprobe';
 
-const npm3Path = path.resolve(__dirname, '..', target);
-const npm2Path = path.resolve(__dirname, 'node_modules', '@ffprobe-installer', target);
+let appFolder = path.dirname(process.pkg ? process.execPath : (require.main ? require.main.filename : process.argv[0]));
+
+const npm3Path = path.resolve(appFolder, '..', 'node_modules', packageName);
+const npm2Path = path.resolve(appFolder, 'node_modules', packageName);
 
 const npm3Binary = path.join(npm3Path, binary);
 const npm2Binary = path.join(npm2Path, binary);
